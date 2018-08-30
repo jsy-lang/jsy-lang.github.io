@@ -1,2 +1,187 @@
-<!doctype html>
-<meta http-equiv="refresh" content="0; url=http://github.com/jsy-lang/jsy-lang-docs#readme">
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1' />
+  <title>JSY Code Playground</title>
+
+  <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/lib/codemirror.css' />
+  <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/base16-light.css' />
+  <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/base16-dark.css' />
+  <link crossorigin rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css' />
+  <style>
+    .CodeMirror { height: auto; border-width: 1em 0; border-color: #333; border-style: solid; }
+    .doc_codeHighlight { border-width: 1px 0; border-color: rgba(0.7,0.7,0.7,0.2); border-style: solid; }
+    .doc_about { box-shadow: 0px 0px 15px 0px rgba(0.7,0.7,0.7,0.2) }
+  </style>
+
+  <script defer src='https://unpkg.com/jsy-transpile/umd/jsy-transpile.js'></script>
+  <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/lib/codemirror.min.js'></script>
+  <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/mode/javascript/javascript.js'></script>
+  <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/addon/runmode/runmode.js'></script>
+  <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/keymap/vim.js'></script>
+  <script defer src='./js/mode/jsy/jsy.js'></script>
+
+  <script defer src='https://use.fontawesome.com/releases/v5.1.0/js/all.js'></script>
+</head>
+<body>
+  <section class='section'>
+    <div class='columns is-desktop'>
+      <div class='column is-half-desktop'>
+        <h3 class='is-size-3'>JSY Dialect</h3>
+        <textarea id='edit_jsy'>
+const apiUrl = 'http://api.example.com'
+
+class ExampleApi extends SomeBaseClass ::
+  constructor( credentials ) ::
+    const apiCall = async ( pathName, body ) => ::
+      const res = await fetch @ `${apiUrl}/${pathName}`, @{}
+        method: 'POST'
+        headers: @{}
+          'Content-Type': 'application/json'
+        body: JSON.stringify @ body
+
+      return await res.json()
+
+    Object.assign @ this, @{}
+      add: data => apiCall @ 'add', data
+      modify: data => apiCall @ 'send', data
+      retrieve: data => apiCall @ 'get', data
+</textarea>
+        <p class='is-size-4 has-text-right'>
+          the <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs#readme'>JSY dialect</a>
+        </p>
+      </div>
+      <div class='column is-half-desktop'>
+        <h3 class='is-size-3'>JavaScript</h3>
+        <textarea id='edit_javascript'></textarea>
+        <p class='is-size-4 has-text-right'>
+          from <a target='_blank' href='https://www.npmjs.com/package/jsy-transpile'>jsy-transpile</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class='doc_about section is-medium has-background-light'>
+    <div class='container content is-large'>
+      <p>
+      <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs#readme'>JSY</a> is <b>an indented (offside) JavaScript dialect</b>. We believe indentation is
+      better at describing code blocks instead of painstakingly matching open/close
+      sections <code>{ } () []</code>.
+      </p>
+
+      <p>
+      Think modern JavaScript — ES6, ES2018 — indented similar
+       to <a target='_blank' href='https://www.python.org'>Python</a>
+       or <a target='_blank' href='https://coffeescript.org'>CoffeeScript</a>
+      </p>
+
+      <p>
+      Inspired by <a target='_blank' href='http://www.draketo.de/english/wisp'>Wisp</a>, JSY
+      primarily operates as a scanner-pass syntax transformation to change
+      indented (offside) code into the corresponding open/close matching token
+      code. Thus the internal scanning parser only has to be aware of
+      <code>/* comments */</code> and <code>"string literals"</code> rules to
+      successfully transform code. Thus, as a JavaScript dialect,
+      <b>JSY automatically keeps pace with modern JavaScript editions!</b>
+      </p>
+
+      <p>
+        JSY has over <a target='_blank' href='./unittest.html'>3,000 JSY unit tests</a>,
+        a plugin for <a target='_blank' href='https://github.com/jsy-lang/rollup-plugin-jsy-lite#readme'>Rollup</a>,
+        as well as <a target='_blank' href='https://github.com/jsy-lang/babel-plugin-jsy-lite#readme'>Babel 6 & 7</a>,
+        and <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs#ecosystem'>more</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class='section'>
+    <div class='columns is-desktop'>
+      <div class='column is-half-desktop'>
+        <h4 class='is-size-4'>JSY Highlighted</h3>
+        <br/>
+        <pre id='output_jsy' class='doc_codeHighlight cm-s-base16-light'></pre>
+      </div>
+
+      <div class='column is-half-desktop'>
+        <h4 class='is-size-4'>JavaScript Highlighted</h3>
+        <br/>
+        <pre id='output_javascript' class='doc_codeHighlight cm-s-base16-light'></pre>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const editor_options = {
+      lineNumbers: true,
+      //viewportMargin: Infinity,
+      theme: 'base16-dark',
+      showCursorWhenSelecting: true,
+      inputStyle: 'contenteditable',
+    }
+
+    const jsy_editor_options = Object.assign({}, editor_options, {
+      keyMap: localStorage.getItem('keyMap') || 'default',
+      mode: 'jsy' })
+
+    const javascript_editor_options = Object.assign({}, editor_options, {
+      readOnly: true,
+      mode: 'javascript'})
+
+    let init_load = () => {
+      if (! window.CodeMirror || ! window.jsy_transpile) return false
+
+      init_load = () => true
+
+      const ed_jsy = window.ed_jsy = CodeMirror.fromTextArea(
+        document.getElementById('edit_jsy'), jsy_editor_options)
+
+      ed_jsy.focus()
+
+      const ed_javascript = window.ed_javascript = CodeMirror.fromTextArea(
+        document.getElementById('edit_javascript'), javascript_editor_options)
+
+      let tid_debounce
+      ed_jsy.on('change', () => {
+        clearTimeout(tid_debounce)
+        tid_debounce = setTimeout(on_jsy_updated, 200,
+          {ed_jsy, ed_javascript})
+      })
+
+      on_jsy_updated({ed_jsy, ed_javascript})
+      return true
+    }
+
+    window.addEventListener('DOMContentLoaded', () => init_load())
+    window.addEventListener('load', () => init_load)
+
+    function on_jsy_updated({ed_jsy, ed_javascript}) {
+      const jsy_src = ed_jsy.getValue()
+      let js_vanilla = ''
+      try {
+        js_vanilla = jsy_transpile(jsy_src)
+      } catch (err) {
+        console.error(err)
+        js_vanilla = `// ERROR: ${err.message}`
+      }
+
+      ed_javascript.setValue(js_vanilla)
+      doJSYHighlight(jsy_src, js_vanilla)
+    }
+
+    function doJSYHighlight(jsy_src, js_vanilla) {
+      CodeMirror.runMode(jsy_src, 'jsy', document.getElementById('output_jsy'))
+      CodeMirror.runMode(js_vanilla, 'javascript', document.getElementById('output_javascript'))
+    }
+  </script>
+
+
+  <footer class='footer'>
+    <div class='content has-text-centered'>
+      <p>Copyright (©) 2018 Shane Holloway. Content and examples are licensed under <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs/blob/master/LICENSE'>BSD 2-Clause and CC by SA 4.0</a>.</p>
+    </div>
+  </footer>
+
+</body>
+</html>
+
