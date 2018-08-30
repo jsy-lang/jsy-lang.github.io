@@ -8,11 +8,17 @@
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/lib/codemirror.css' />
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/base16-light.css' />
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/base16-dark.css' />
+  <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/lucario.css' />
+  <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/material.css' />
+  <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/monokai.css' />
+  <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/midnight.css' />
+  <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/solarized.css' />
   <link crossorigin rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css' />
   <style>
-    .CodeMirror { height: auto; font-size: 10pt; border-width: 1em 0; border-color: #333; border-style: solid; }
-    .doc_codeHighlight { font-size: 10pt; border-width: 1px 0; border-color: rgba(0.7,0.7,0.7,0.2); border-style: solid; }
+    .CodeMirror { height: auto; font-size: 10pt; }
+    .doc_codeHighlight { font-size: 10pt; }
     .doc_about { box-shadow: 0px 0px 15px 0px rgba(0.7,0.7,0.7,0.2) }
+    .doc_about>.container.content { max-width: 46em }
   </style>
 
   <script defer src='https://unpkg.com/jsy-transpile/umd/jsy-transpile.js'></script>
@@ -23,13 +29,18 @@
   <script defer src='./js/mode/jsy/jsy.js'></script>
 
   <script defer src='https://use.fontawesome.com/releases/v5.1.0/js/all.js'></script>
+  <script>
+    window.local_editor_options = JSON.parse(localStorage.getItem('editor_options') || '{}')
+  </script>
 </head>
 <body>
   <section class='section'>
     <div class='columns is-desktop'>
       <div class='column is-half-desktop'>
-        <h3 class='is-size-3'>JSY Dialect</h3>
-        <textarea id='edit_jsy'>
+        <h3 class='is-size-3'>JSY Dialect
+          <em class='is-size-6'>(edit me!)</em></h3>
+        </h3>
+        <textarea id='edit_jsy' class='is-invisible'>
 const apiUrl = 'http://api.example.com'
 
 class ExampleApi extends SomeBaseClass ::
@@ -48,13 +59,44 @@ class ExampleApi extends SomeBaseClass ::
       modify: data => apiCall @ 'send', data
       retrieve: data => apiCall @ 'get', data
 </textarea>
-        <p class='is-size-4 has-text-right'>
-          the <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs#readme'>JSY dialect</a>
-        </p>
+        <div class='columns'>
+          <div class='column'>
+            <div class='field is-grouped' style='padding-top: 6px'>
+              <div class='control'>
+                <label class='checkbox'>
+                  <input id='vim_mode' type='checkbox' name='keyMap' value='vim' onchange='changeEditorOption({keyMap: this.checked ? this.value : "default"})' />
+                  VIM mode
+                  <script>Promise.resolve().then(() => { const el = document.getElementById('vim_mode'); el.checked = el.value === window.local_editor_options.keyMap })</script>
+                </label>
+              </div>
+              <div class='control'>
+                <div class='select is-small'>
+                  <select onchange='changeEditorOption({theme: this.value || "default"})' >
+                    <option selected value='default'>Theme</option>
+                    <option>default</option>
+                    <option>base16-light</option>
+                    <option>base16-dark</option>
+                    <option>lucario</option>
+                    <option>material</option>
+                    <option>monokai</option>
+                    <option>midnight</option>
+                    <option>solarized light</option>
+                    <option>solarized dark</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class='column is-narrow has-text-right'>
+            <p class='is-size-4'>
+              the <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs#readme'>JSY dialect</a>
+            </p>
+          </div>
+        </div>
       </div>
       <div class='column is-half-desktop'>
         <h3 class='is-size-3'>JavaScript</h3>
-        <textarea id='edit_javascript'></textarea>
+        <textarea id='edit_javascript' class='is-invisible'></textarea>
         <p class='is-size-4 has-text-right'>
           from <a target='_blank' href='https://www.npmjs.com/package/jsy-transpile'>jsy-transpile</a>
         </p>
@@ -63,7 +105,7 @@ class ExampleApi extends SomeBaseClass ::
   </section>
 
   <section class='doc_about section is-medium has-background-light'>
-    <div class='container content is-large'>
+    <div class='container content is-size-4-desktop'>
       <p>
       <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs#readme'>JSY</a> is <b>an indented (offside) JavaScript dialect</b>. We believe indentation is
       better at describing code blocks instead of painstakingly matching open/close
@@ -73,7 +115,7 @@ class ExampleApi extends SomeBaseClass ::
       <p>
       Think modern JavaScript — ES6, ES2018 — indented similar
        to <a target='_blank' href='https://www.python.org'>Python</a>
-       or <a target='_blank' href='https://coffeescript.org'>CoffeeScript</a>
+       or <a target='_blank' href='https://coffeescript.org'>CoffeeScript</a>.
       </p>
 
       <p>
@@ -86,9 +128,12 @@ class ExampleApi extends SomeBaseClass ::
       <b>JSY automatically keeps pace with modern JavaScript editions!</b>
       </p>
 
+      <br />
+
       <p>
-        JSY has over <a target='_blank' href='./unittest.html'>3,000 JSY unit tests</a>,
-        a plugin for <a target='_blank' href='https://github.com/jsy-lang/rollup-plugin-jsy-lite#readme'>Rollup</a>,
+        JSY has over <a target='_blank' href='./unittest.html'>3,000 JSY unit tests</a> to insure consistency and stability.
+
+        There are plugins for <a target='_blank' href='https://github.com/jsy-lang/rollup-plugin-jsy-lite#readme'>Rollup</a>,
         as well as <a target='_blank' href='https://github.com/jsy-lang/babel-plugin-jsy-lite#readme'>Babel 6 & 7</a>,
         and <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs#ecosystem'>more</a>.
       </p>
@@ -99,13 +144,30 @@ class ExampleApi extends SomeBaseClass ::
     <div class='columns is-desktop'>
       <div class='column is-half-desktop'>
         <h4 class='is-size-4'>JSY Highlighted</h3>
-        <br/>
-        <pre id='output_jsy' class='doc_codeHighlight cm-s-base16-light'></pre>
+        <pre id='output_jsy' class='doc_codeHighlight CodeMirror cm-s-base16-light'></pre>
+
+        <div class='field is-grouped' style='padding-top: 6px'>
+          <div class='control'>
+            <div class='select is-small'>
+              <select onchange='changeHighlightOption({theme: this.value || "default"})' >
+                <option selected value='default'>Theme</option>
+                <option>default</option>
+                <option>base16-light</option>
+                <option>base16-dark</option>
+                <option>lucario</option>
+                <option>material</option>
+                <option>monokai</option>
+                <option>midnight</option>
+                <option>solarized light</option>
+                <option>solarized dark</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class='column is-half-desktop'>
         <h4 class='is-size-4'>JavaScript Highlighted</h3>
-        <br/>
         <pre id='output_javascript' class='doc_codeHighlight cm-s-base16-light'></pre>
       </div>
     </div>
@@ -114,49 +176,64 @@ class ExampleApi extends SomeBaseClass ::
   <script>
     const editor_options = {
       lineNumbers: true,
-      //viewportMargin: Infinity,
       theme: 'base16-dark',
-      showCursorWhenSelecting: true,
       inputStyle: 'contenteditable',
     }
 
-    const jsy_editor_options = Object.assign({}, editor_options, {
-      keyMap: localStorage.getItem('keyMap') || 'default',
-      mode: 'jsy' })
+    const jsy_editor_options = Object.assign(
+      {}, editor_options, window.local_editor_options,
+      { mode: 'jsy' })
 
-    const javascript_editor_options = Object.assign({}, editor_options, {
-      readOnly: true,
-      mode: 'javascript'})
+    const javascript_editor_options = Object.assign(
+      {}, editor_options, window.local_editor_options,
+      { readOnly: true, mode: 'javascript'})
 
+    const doc_editors = window.doc_editors = {}
     let init_load = () => {
       if (! window.CodeMirror || ! window.jsy_transpile) return false
 
       init_load = () => true
 
-      const ed_jsy = window.ed_jsy = CodeMirror.fromTextArea(
+      const ed_jsy = doc_editors.jsy = CodeMirror.fromTextArea(
         document.getElementById('edit_jsy'), jsy_editor_options)
 
       ed_jsy.focus()
 
-      const ed_javascript = window.ed_javascript = CodeMirror.fromTextArea(
+      const ed_javascript = doc_editors.javascript = CodeMirror.fromTextArea(
         document.getElementById('edit_javascript'), javascript_editor_options)
 
-      let tid_debounce
-      ed_jsy.on('change', () => {
-        clearTimeout(tid_debounce)
-        tid_debounce = setTimeout(on_jsy_updated, 200,
-          {ed_jsy, ed_javascript})
-      })
+      ed_jsy.on('change', () => on_jsy_updated())
 
-      on_jsy_updated({ed_jsy, ed_javascript})
+      on_jsy_updated(true)
       return true
     }
+
+    function changeEditorOption(changed_options) {
+      const merged = Object.assign(
+        JSON.parse(localStorage.getItem('editor_options') || '{}'),
+        changed_options)
+
+      localStorage.setItem('editor_options', JSON.stringify(merged))
+      window.local_editor_options = merged
+
+      for (const [k, v] of Object.entries(changed_options))
+        for (const ed of Object.values(doc_editors))
+          ed.setOption(k,v)
+
+      on_jsy_updated()
+      return merged }
 
     window.addEventListener('DOMContentLoaded', () => init_load())
     window.addEventListener('load', () => init_load)
 
-    function on_jsy_updated({ed_jsy, ed_javascript}) {
-      const jsy_src = ed_jsy.getValue()
+    function on_jsy_updated(force) {
+      if (!force) {
+        clearTimeout(on_jsy_updated.tid)
+        on_jsy_updated.tid = setTimeout(on_jsy_updated, 200, true)
+        return
+      }
+
+      const jsy_src = doc_editors.jsy.getValue()
       let js_vanilla = ''
       try {
         js_vanilla = jsy_transpile(jsy_src)
@@ -165,7 +242,7 @@ class ExampleApi extends SomeBaseClass ::
         js_vanilla = `// ERROR: ${err.message}`
       }
 
-      ed_javascript.setValue(js_vanilla)
+      doc_editors.javascript.setValue(js_vanilla)
       doJSYHighlight(jsy_src, js_vanilla)
     }
 
@@ -173,11 +250,27 @@ class ExampleApi extends SomeBaseClass ::
       CodeMirror.runMode(jsy_src, 'jsy', document.getElementById('output_jsy'))
       CodeMirror.runMode(js_vanilla, 'javascript', document.getElementById('output_javascript'))
     }
+
+    function changeHighlightOption(changed_options) {
+      const theme = changed_options.theme || 'base16-lite'
+
+      const theme_class = theme.split(/\s+/).map(n => 'cm-s-'+n).join(' ')
+      console.log({theme, theme_class})
+
+      for (const el of document.querySelectorAll('.doc_codeHighlight')) {
+        el.className = 'doc_codeHighlight CodeMirror ' + theme_class
+      }
+    }
   </script>
 
 
   <footer class='footer'>
     <div class='content has-text-centered'>
+      <p>
+      Built with <a target='_blank' href='https://codemirror.net/'>CodeMirror</a>
+      and <a target='_blank' href='https://bulma.io'>Bulma</a>
+      </p>
+
       <p>
       Copyright (©) 2018 Shane Holloway.<br/>
       Content and examples are licensed under <br/>
