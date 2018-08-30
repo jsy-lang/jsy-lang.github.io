@@ -5,7 +5,10 @@
   <meta name='viewport' content='width=device-width, initial-scale=1' />
   <title>JSY Code Playground</title>
 
+  <link crossorigin rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css' />
+
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/lib/codemirror.css' />
+
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/base16-light.css' />
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/base16-dark.css' />
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/lucario.css' />
@@ -13,7 +16,7 @@
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/monokai.css' />
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/midnight.css' />
   <link crossorigin rel='stylesheet' href='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/theme/solarized.css' />
-  <link crossorigin rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.css' />
+
   <style>
     .CodeMirror { height: auto; font-size: 10pt; }
     .doc_codeHighlight { font-size: 10pt; }
@@ -28,7 +31,6 @@
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/keymap/vim.js'></script>
   <script defer src='./js/mode/jsy/jsy.js'></script>
 
-  <script defer src='https://use.fontawesome.com/releases/v5.1.0/js/all.js'></script>
   <script>
     window.local_editor_options = JSON.parse(localStorage.getItem('editor_options') || '{}')
   </script>
@@ -265,17 +267,25 @@ class ExampleApi extends SomeBaseClass ::
 
 
   <footer class='footer'>
-    <div class='content has-text-centered'>
-      <p>
-      Built with <a target='_blank' href='https://codemirror.net/'>CodeMirror</a>
-      and <a target='_blank' href='https://bulma.io'>Bulma</a>
-      </p>
+    <div class='content columns'>
+      <div class='column has-text-left'>
+        <p>
+        Built with <a target='_blank' href='https://codemirror.net/'>CodeMirror</a>
+        and <a target='_blank' href='https://bulma.io'>Bulma</a>.
+        </p>
+      </div>
 
-      <p>
-      Copyright (©) 2018 Shane Holloway.<br/>
-      Content and examples are licensed under <br/>
-      <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs/blob/master/LICENSE'>BSD 2-Clause or CC by SA 4.0</a> as applicable.
-      </p>
+      <div class='column has-text-centered'>
+        <p>
+        Copyright (©) 2018 Shane Holloway.<br/>
+        Content and examples are licensed under <br/>
+        <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs/blob/master/LICENSE'>BSD 2-Clause or CC by SA 4.0</a> as applicable.
+        </p>
+      </div>
+
+      <div class='column has-text-right'>
+        <a title='Clicky' href='http://clicky.com/101137747'><img alt='Clicky: Real Time Web Analytics' src='https://static.getclicky.com/media/links/badge.gif' border='0' /><img alt='Clicky' width='1' height='1' src='https://in.getclicky.com/101137747ns.gif' /></a>
+      </div>
     </div>
   </footer>
 
