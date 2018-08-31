@@ -35,25 +35,16 @@
   <script defer src='https://cdn.jsdelivr.net/npm/prettier@1.14.2/parser-babylon.js'></script>
 
   <script>
-    window.local_editor_options = JSON.parse(localStorage.getItem('editor_options') || '{}')
-    window.local_hightlight_options = JSON.parse(localStorage.getItem('hightlight_options') || '{}')
-  </script>
-</head>
-<body>
-  <section class='section'>
-    <div class='columns is-desktop'>
-      <div class='column is-half-desktop'>
-        <h3 class='is-size-3'>JSY Dialect
-          <em class='is-size-6'>(edit me!)</em></h3>
-        </h3>
+window.local_editor_options = JSON.parse(localStorage.getItem('editor_options') || '{}')
+window.local_hightlight_options = JSON.parse(localStorage.getItem('hightlight_options') || '{}')
 
-        <textarea id='edit_jsy' class='is-invisible'>
-const apiUrl = 'http://api.example.com'
+window.default_jsy_src =
+`const apiUrl = 'http://api.example.com'
 
 class ExampleApi extends SomeBaseClass ::
   constructor( credentials ) ::
     const apiCall = async ( pathName, body ) => ::
-      const res = await fetch @ `${apiUrl}/${pathName}`, @{}
+      const res = await fetch @ \`\$\{apiUrl}/\$\{pathName}\`, @{}
         method: 'POST'
         headers: @{}
           'Content-Type': 'application/json'
@@ -65,7 +56,19 @@ class ExampleApi extends SomeBaseClass ::
       add: data => apiCall @ 'add', data
       modify: data => apiCall @ 'send', data
       retrieve: data => apiCall @ 'get', data
-</textarea>
+
+`
+  </script>
+</head>
+<body>
+  <section class='section'>
+    <div class='columns is-desktop'>
+      <div class='column is-half-desktop'>
+        <h3 class='is-size-3'>JSY Dialect
+          <em class='is-size-6'>(edit me!)</em></h3>
+        </h3>
+
+        <textarea id='edit_jsy' class='is-invisible'></textarea>
         <div class='columns'>
           <div class='column'>
             <div class='field is-grouped' style='padding-top: 6px'>
@@ -95,6 +98,7 @@ class ExampleApi extends SomeBaseClass ::
                   </select>
                 </div>
               </div>
+              <a class='button is-small is-warning' onclick='resetEditor(), false'>reset editor</a>
             </div>
           </div>
           <div class='column is-narrow has-text-right'>
@@ -212,11 +216,11 @@ class ExampleApi extends SomeBaseClass ::
 
     const jsy_editor_options = Object.assign(
       {}, editor_options, window.local_editor_options,
-      { mode: 'jsy' })
+      { autofocus: true, tabindex: 1, mode: 'jsy' })
 
     const javascript_editor_options = Object.assign(
       {}, editor_options, window.local_editor_options,
-      { readOnly: true, mode: 'javascript'})
+      { readOnly: true, tabindex: 2, mode: 'javascript'})
 
     const doc_editors = window.doc_editors = {}
     let init_load = () => {
@@ -227,15 +231,25 @@ class ExampleApi extends SomeBaseClass ::
       const ed_jsy = doc_editors.jsy = CodeMirror.fromTextArea(
         document.getElementById('edit_jsy'), jsy_editor_options)
 
-      ed_jsy.focus()
-
       const ed_javascript = doc_editors.javascript = CodeMirror.fromTextArea(
         document.getElementById('edit_javascript'), javascript_editor_options)
 
-      ed_jsy.on('change', () => on_jsy_updated())
+      ed_jsy.setValue(localStorage.getItem('jsy_src') || default_jsy_src)
+      ed_jsy.on('change', () => {
+        localStorage.setItem('jsy_src', doc_editors.jsy.getValue())
+        on_jsy_updated()
+      })
 
       on_jsy_updated(true)
       return true
+    }
+
+    function resetEditor() {
+      localStorage.setItem('jsy_src', default_jsy_src)
+      changeEditorOption({keyMap:'default', theme: 'base16-dark'})
+      doc_editors.jsy.setValue(localStorage.getItem('jsy_src') || default_jsy_src)
+      localStorage.removeItem('editor_options')
+      on_jsy_updated(true)
     }
 
     function changeEditorOption(changed_options) {
@@ -248,7 +262,7 @@ class ExampleApi extends SomeBaseClass ::
 
       for (const [k, v] of Object.entries(changed_options))
         for (const ed of Object.values(doc_editors))
-          ed.setOption(k,v)
+          ed.setOption(k, v)
 
       on_jsy_updated()
       return merged }
@@ -257,13 +271,13 @@ class ExampleApi extends SomeBaseClass ::
     window.addEventListener('load', () => init_load)
 
     function on_jsy_updated(force) {
+      on_jsy_updated.tid = clearTimeout(on_jsy_updated.tid)
       if (!force) {
-        clearTimeout(on_jsy_updated.tid)
         on_jsy_updated.tid = setTimeout(on_jsy_updated, 200, true)
         return
       }
 
-      const jsy_src = doc_editors.jsy.getValue()
+      const jsy_src = localStorage.getItem('jsy_src') || default_jsy_src
       let js_vanilla = ''
       try {
         js_vanilla = jsy_transpile(jsy_src)
