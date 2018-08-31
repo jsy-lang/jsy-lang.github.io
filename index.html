@@ -24,15 +24,19 @@
     .doc_about>.container.content { max-width: 46em }
   </style>
 
-  <script defer src='https://unpkg.com/jsy-transpile/umd/jsy-transpile.js'></script>
+  <script defer src='https://cdn.jsdelivr.net/npm/jsy-transpile/umd/jsy-transpile.min.js'></script>
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/lib/codemirror.min.js'></script>
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/mode/javascript/javascript.js'></script>
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/addon/runmode/runmode.js'></script>
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/keymap/vim.js'></script>
   <script defer src='./js/mode/jsy/jsy.js'></script>
 
+  <script defer src='https://cdn.jsdelivr.net/npm/prettier@1.14.2/standalone.js'></script>
+  <script defer src='https://cdn.jsdelivr.net/npm/prettier@1.14.2/parser-babylon.js'></script>
+
   <script>
     window.local_editor_options = JSON.parse(localStorage.getItem('editor_options') || '{}')
+    window.local_hightlight_options = JSON.parse(localStorage.getItem('hightlight_options') || '{}')
   </script>
 </head>
 <body>
@@ -42,6 +46,7 @@
         <h3 class='is-size-3'>JSY Dialect
           <em class='is-size-6'>(edit me!)</em></h3>
         </h3>
+
         <textarea id='edit_jsy' class='is-invisible'>
 const apiUrl = 'http://api.example.com'
 
@@ -68,7 +73,10 @@ class ExampleApi extends SomeBaseClass ::
                 <label class='checkbox'>
                   <input id='vim_mode' type='checkbox' name='keyMap' value='vim' onchange='changeEditorOption({keyMap: this.checked ? this.value : "default"})' />
                   VIM mode
-                  <script>Promise.resolve().then(() => { const el = document.getElementById('vim_mode'); el.checked = el.value === window.local_editor_options.keyMap })</script>
+                  <script>Promise.resolve().then(() => {
+                    const el = document.getElementById('vim_mode')
+                    el.checked = el.value === window.local_editor_options.keyMap })
+                  </script>
                 </label>
               </div>
               <div class='control'>
@@ -96,12 +104,30 @@ class ExampleApi extends SomeBaseClass ::
           </div>
         </div>
       </div>
+
       <div class='column is-half-desktop'>
         <h3 class='is-size-3'>JavaScript</h3>
         <textarea id='edit_javascript' class='is-invisible'></textarea>
-        <p class='is-size-4 has-text-right'>
-          from <a target='_blank' href='https://www.npmjs.com/package/jsy-transpile'>jsy-transpile</a>
-        </p>
+        <div class='columns'>
+          <div class='column'>
+            <div class='field is-grouped' style='padding-top: 6px'>
+              <div class='control'>
+                <label class='checkbox'>
+                  <input id='use_prettier' type='checkbox' onchange='changeHighlightOption({use_prettier: this.checked})' />
+                  <a target='_blank' href='https://prettier.io'>Prettier</a>
+                  <script>Promise.resolve().then(() => {
+                    const el = document.getElementById('use_prettier')
+                    el.checked = !! window.local_hightlight_options.use_prettier })
+                  </script>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class='column'>
+            <p class='is-size-4 has-text-right'>
+              from <a target='_blank' href='https://www.npmjs.com/package/jsy-transpile'>jsy-transpile</a>
+            </p>
+          </div>
       </div>
     </div>
   </section>
@@ -133,7 +159,9 @@ class ExampleApi extends SomeBaseClass ::
       <br />
 
       <p>
-        JSY has over <a target='_blank' href='./unittest.html'>3,000 JSY unit tests</a> to insure consistency and stability.
+        JSY has over <a target='_blank' href='./unittest.html'>3,000 JSY unit tests</a>
+        and <a title='Build Status' target='_blank' href='https://travis-ci.org/jsy-lang/jsy-transpile'>continuous testing <img alt='Build Status' src='https://travis-ci.org/jsy-lang/jsy-transpile.svg?branch=master' border='0' /></a>
+        to insure consistency and stability.
 
         There are plugins for <a target='_blank' href='https://github.com/jsy-lang/rollup-plugin-jsy-lite#readme'>Rollup</a>,
         as well as <a target='_blank' href='https://github.com/jsy-lang/babel-plugin-jsy-lite#readme'>Babel 6 & 7</a>,
@@ -244,6 +272,10 @@ class ExampleApi extends SomeBaseClass ::
         js_vanilla = `// ERROR: ${err.message}`
       }
 
+      if (window.local_hightlight_options.use_prettier && window.prettier)
+        js_vanilla = window.prettier.format(js_vanilla,
+          { parser: 'babylon', plugins: prettierPlugins })
+
       doc_editors.javascript.setValue(js_vanilla)
       doJSYHighlight(jsy_src, js_vanilla)
     }
@@ -251,17 +283,25 @@ class ExampleApi extends SomeBaseClass ::
     function doJSYHighlight(jsy_src, js_vanilla) {
       CodeMirror.runMode(jsy_src, 'jsy', document.getElementById('output_jsy'))
       CodeMirror.runMode(js_vanilla, 'javascript', document.getElementById('output_javascript'))
-    }
 
-    function changeHighlightOption(changed_options) {
-      const theme = changed_options.theme || 'base16-lite'
-
+      const theme = window.local_hightlight_options.theme || 'base16-light'
       const theme_class = theme.split(/\s+/).map(n => 'cm-s-'+n).join(' ')
-      console.log({theme, theme_class})
-
       for (const el of document.querySelectorAll('.doc_codeHighlight')) {
         el.className = 'doc_codeHighlight CodeMirror ' + theme_class
       }
+    }
+
+    function changeHighlightOption(changed_options) {
+      const merged = Object.assign(
+        JSON.parse(localStorage.getItem('hightlight_options') || '{}'),
+        changed_options)
+
+      if (changed_options)
+        localStorage.setItem('hightlight_options', JSON.stringify(merged))
+
+      window.local_hightlight_options = merged
+      on_jsy_updated(true)
+      return merged
     }
   </script>
 
@@ -284,7 +324,9 @@ class ExampleApi extends SomeBaseClass ::
       </div>
 
       <div class='column has-text-right'>
-        <a title='Clicky' href='http://clicky.com/101137747'><img alt='Clicky: Real Time Web Analytics' src='https://static.getclicky.com/media/links/badge.gif' border='0' /><img alt='Clicky' width='1' height='1' src='https://in.getclicky.com/101137747ns.gif' /></a>
+        <a title='JSDeliver' target='_blank' href='https://www.jsdelivr.com/package/npm/jsy-transpile'><img alt='JSDeliver' src='https://data.jsdelivr.com/v1/package/npm/jsy-transpile/badge' border='0' /></a>
+        <br />
+        <a title='Clicky' target='_blank' href='http://clicky.com/101137747'><img alt='Clicky: Real Time Web Analytics' src='https://static.getclicky.com/media/links/badge.gif' border='0' /><img alt='Clicky' width='1' height='1' src='https://in.getclicky.com/101137747ns.gif' /></a>
       </div>
     </div>
   </footer>
