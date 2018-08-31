@@ -286,9 +286,13 @@ class ExampleApi extends SomeBaseClass ::
         js_vanilla = `// ERROR: ${err.message}`
       }
 
-      if (window.local_hightlight_options.use_prettier && window.prettier)
-        js_vanilla = window.prettier.format(js_vanilla,
+      if (window.local_hightlight_options.use_prettier && window.prettier) {
+        const opt = Object.assign({},
+          window.local_hightlight_options.prettier,
           { parser: 'babylon', plugins: prettierPlugins })
+
+        js_vanilla = window.prettier.format(js_vanilla, opt)
+      }
 
       doc_editors.javascript.setValue(js_vanilla)
       doJSYHighlight(jsy_src, js_vanilla)
@@ -317,6 +321,17 @@ class ExampleApi extends SomeBaseClass ::
       on_jsy_updated(true)
       return merged
     }
+    function prettierOptions(prettier) {
+      changeHighlightOption({prettier: Object.assign({}, prettier)})
+    }
+    console.log(`To Change Prettier Options:
+
+  prettierOptions({insertPragma: true}
+  prettierOptions({semi: true, singleQuote: false})
+  prettierOptions({useTabs: false, tabWidth: 4})
+  prettierOptions({trailingComma: 'all', arrowParens: 'always'})
+
+`)
   </script>
 
 
