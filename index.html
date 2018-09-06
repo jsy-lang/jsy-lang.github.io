@@ -30,6 +30,7 @@
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/addon/runmode/runmode.js'></script>
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/keymap/vim.js'></script>
   <script defer src='./js/mode/jsy/jsy.js'></script>
+  <script defer crossorigin src='https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js'></script>
 
   <script defer src='https://cdn.jsdelivr.net/npm/prettier@1.14.2/standalone.js'></script>
   <script defer src='https://cdn.jsdelivr.net/npm/prettier@1.14.2/parser-babylon.js'></script>
@@ -215,6 +216,16 @@ class ExampleApi extends SomeBaseClass ::
   </section>
 
   <script>
+    function get_jsy_src() {
+      const hash = window.location.hash.slice(1)
+      return ! hash ? default_jsy_src :
+        LZString.decompressFromEncodedURIComponent(hash) }
+    function set_jsy_src(jsy_src) {
+      window.location.hash = (false === jsy_src || default_jsy_src == jsy_src) ? '' :
+        LZString.compressToEncodedURIComponent(jsy_src) }
+
+    window.addEventListener('hashchange', () => on_jsy_updated(), false)
+
     const editor_options = {
       lineNumbers: true,
       theme: 'base16-dark',
@@ -230,10 +241,17 @@ class ExampleApi extends SomeBaseClass ::
       { readOnly: true, tabindex: 2, mode: 'javascript'})
 
     const doc_editors = window.doc_editors = {}
-    let init_load = () => {
-      if (! window.CodeMirror || ! window.jsy_transpile) return false
 
-      init_load = () => true
+    const page_loaded = new Promise(resolve => {
+      window.addEventListener('DOMContentLoaded', () => resolve(), false)
+      window.addEventListener('load', () => resolve(), false)
+    })
+
+    page_loaded
+    .then(get_jsy_src)
+    .then(function(jsy_src) {
+      if (! window.jsy_transpile) throw new Error('jsy_transpile not loaded')
+      if (! window.CodeMirror) throw new Error('CodeMirror not loaded')
 
       const ed_jsy = doc_editors.jsy = CodeMirror.fromTextArea(
         document.getElementById('edit_jsy'), jsy_editor_options)
@@ -241,20 +259,16 @@ class ExampleApi extends SomeBaseClass ::
       const ed_javascript = doc_editors.javascript = CodeMirror.fromTextArea(
         document.getElementById('edit_javascript'), javascript_editor_options)
 
-      ed_jsy.setValue(localStorage.getItem('jsy_src') || default_jsy_src)
-      ed_jsy.on('change', () => {
-        localStorage.setItem('jsy_src', doc_editors.jsy.getValue())
-        on_jsy_updated()
-      })
+      ed_jsy.setValue(jsy_src)
+      ed_jsy.on('change', () => set_jsy_src(doc_editors.jsy.getValue()))
 
       on_jsy_updated(true)
       return true
-    }
+    })
 
     function resetEditor() {
-      localStorage.setItem('jsy_src', default_jsy_src)
+      set_jsy_src(false)
       changeEditorOption({keyMap:'default', theme: 'base16-dark'})
-      doc_editors.jsy.setValue(localStorage.getItem('jsy_src') || default_jsy_src)
       localStorage.removeItem('editor_options')
       on_jsy_updated(true)
     }
@@ -274,9 +288,6 @@ class ExampleApi extends SomeBaseClass ::
       on_jsy_updated()
       return merged }
 
-    window.addEventListener('DOMContentLoaded', () => init_load())
-    window.addEventListener('load', () => init_load)
-
     function on_jsy_updated(force) {
       on_jsy_updated.tid = clearTimeout(on_jsy_updated.tid)
       if (!force) {
@@ -284,12 +295,15 @@ class ExampleApi extends SomeBaseClass ::
         return
       }
 
-      const jsy_src = localStorage.getItem('jsy_src') || default_jsy_src
+      const jsy_src = get_jsy_src()
+      if (jsy_src != doc_editors.jsy.getValue())
+        doc_editors.jsy.setValue(jsy_src)
+
       let js_vanilla = ''
       try {
         js_vanilla = jsy_transpile(jsy_src)
       } catch (err) {
-        console.error(err)
+        console.warn('JSY-Transpile Error:', err.message)
         js_vanilla = `// ERROR: ${err.message}`
       }
 
