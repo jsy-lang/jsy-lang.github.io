@@ -36,6 +36,7 @@
   <script defer src='https://cdn.jsdelivr.net/npm/prettier@1.14.2/parser-babylon.js'></script>
 
   <script>
+window.jsy_transpile_options = JSON.parse(localStorage.getItem('jsy_transpile_options') || '{}')
 window.local_editor_options = JSON.parse(localStorage.getItem('editor_options') || '{}')
 window.local_hightlight_options = JSON.parse(localStorage.getItem('hightlight_options') || '{}')
 
@@ -301,7 +302,7 @@ class ExampleApi extends SomeBaseClass ::
 
       let js_vanilla = ''
       try {
-        js_vanilla = jsy_transpile(jsy_src)
+        js_vanilla = jsy_transpile(jsy_src, window.jsy_transpile_options)
       } catch (err) {
         console.warn('JSY-Transpile Error:', err.message)
         js_vanilla = `// ERROR: ${err.message}`
