@@ -119,11 +119,11 @@ class ExampleApi extends SomeBaseClass ::
             <div class='field is-grouped' style='padding-top: 6px'>
               <div class='control'>
                 <label class='checkbox'>
-                  <input id='use_prettier' type='checkbox' checked onchange='changeHighlightOption({use_prettier: this.checked})' />
+                  <input id='use_prettier' type='checkbox' onchange='changeHighlightOption({use_prettier: this.checked})' />
                   <a target='_blank' href='https://prettier.io'>Prettier</a>
                   <script>Promise.resolve().then(() => {
                     const el = document.getElementById('use_prettier')
-                    el.checked = !! window.local_hightlight_options.use_prettier })
+                    el.checked = window.local_hightlight_options.use_prettier })
                   </script>
                 </label>
               </div>
