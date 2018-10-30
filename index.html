@@ -313,7 +313,11 @@ class ExampleApi extends SomeBaseClass ::
           window.local_hightlight_options.prettier,
           { parser: 'babylon', plugins: prettierPlugins })
 
-        js_vanilla = window.prettier.format(js_vanilla, opt)
+        try {
+          js_vanilla = window.prettier.format(js_vanilla, opt)
+        } catch (err) {
+          js_vanilla += `\n\n// During Prettier formating:\n\n// ${err.toString().replace(/\n/g, '\n// ')}\n`
+        }
       }
 
       doc_editors.javascript.setValue(js_vanilla)
