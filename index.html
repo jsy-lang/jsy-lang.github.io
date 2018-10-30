@@ -320,7 +320,7 @@ class ExampleApi extends SomeBaseClass ::
             js_vanilla = js_prettier
           }
         } catch (err) {
-          js_vanilla += `\n\n// During Prettier formating:\n\n// ${err.toString().replace(/\n/g, '\n// ')}\n`
+          js_vanilla += `\n\n// ${err.toString().replace(/\n/g, '\n// ')}\n`
         }
 
       }
