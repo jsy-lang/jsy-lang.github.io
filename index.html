@@ -119,7 +119,7 @@ class ExampleApi extends SomeBaseClass ::
             <div class='field is-grouped' style='padding-top: 6px'>
               <div class='control'>
                 <label class='checkbox'>
-                  <input id='use_prettier' type='checkbox' onchange='changeHighlightOption({use_prettier: this.checked})' />
+                  <input id='use_prettier' type='checkbox' checked onchange='changeHighlightOption({use_prettier: this.checked})' />
                   <a target='_blank' href='https://prettier.io'>Prettier</a>
                   <script>Promise.resolve().then(() => {
                     const el = document.getElementById('use_prettier')
@@ -308,16 +308,21 @@ class ExampleApi extends SomeBaseClass ::
         js_vanilla = `// ERROR: ${err.message}`
       }
 
-      if (window.local_hightlight_options.use_prettier && window.prettier) {
+      if (window.prettier) {
         const opt = Object.assign({},
           window.local_hightlight_options.prettier,
           { parser: 'babylon', plugins: prettierPlugins })
 
+        let js_prettier
         try {
-          js_vanilla = window.prettier.format(js_vanilla, opt)
+          js_prettier = window.prettier.format(js_vanilla, opt)
+          if (window.local_hightlight_options.use_prettier) {
+            js_vanilla = js_prettier
+          }
         } catch (err) {
           js_vanilla += `\n\n// During Prettier formating:\n\n// ${err.toString().replace(/\n/g, '\n// ')}\n`
         }
+
       }
 
       doc_editors.javascript.setValue(js_vanilla)
