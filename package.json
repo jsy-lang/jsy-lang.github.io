@@ -1,0 +1,21 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [],
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "@11ty/eleventy-plugin-vite": "^4.0.0",
+    "@jsy-lang/nodejs": "^0.1.0",
+    "@rollup/plugin-terser": "^0.4.3",
+    "rollup-plugin-dgnotify": "^0.1.8",
+    "rollup-plugin-jsy": "^1.9.1"
+  },
+  "scripts": {
+    "prebuild": "test -d ./node_modules || npm ci ; npm run -s clean",
+    "build": "node --loader @jsy-lang/nodejs ./site.config.jsy --build",
+    "watch": "node --loader @jsy-lang/nodejs ./site.config.jsy --watch",
+    "serve": "node --loader @jsy-lang/nodejs ./site.config.jsy --serve --watch",
+    "clean": "rm -rf ./_site ./root/esm/* ./root/**/esm/*",
+    "env": "env"
+  }
+}

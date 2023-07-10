@@ -1,0 +1,96 @@
+import { parseArgs } from 'node:util'
+import { resolve as path_resolve } from 'node:path'
+import { eleventy_jsy } from '@jsy-lang/nodejs'
+import Eleventy from '@11ty/eleventy'
+import epi_vite from '@11ty/eleventy-plugin-vite'
+import rpi_jsy from 'rollup-plugin-jsy'
+import rpi_dgnotify from 'rollup-plugin-dgnotify'
+
+
+export const site_cfg = @{}
+  cli: parseArgs @: strict: false
+  get cli_opt() :: return this.cli.values
+
+
+  async main() ::
+    let cfg_11ty =
+      new Eleventy @ 'root/', '_site/', @{}
+        config: cfg => this.eleventy_config(cfg)
+
+    if this.cli_opt.watch ::
+      cfg_11ty.watch()
+    else ::
+      await cfg_11ty.write()
+
+    if this.cli_opt.serve ::
+      cfg_11ty.serve()
+
+
+
+  filter_fns: @{}
+    vite_url(relpath) ::
+      let uin = new URL(this.page.inputPath, 'file://')
+      return new URL(relpath, uin).pathname
+
+  async eleventy_config(cfg) ::
+    eleventy_jsy(cfg)
+
+    for let [name, fn] of Object.entries @ this.filter_fns ::
+      cfg.addFilter @ name, fn
+
+    // include APP folder in the watch triggers
+    cfg.addWatchTarget @ 'code/**'
+    cfg.addWatchTarget @ 'root/**/*.jsy'
+
+    await this.eleventy_devserver(cfg)
+
+    // https://www.11ty.dev/docs/server-vite/
+    cfg.addPlugin @ epi_vite, @{}
+      viteOptions: await this.vite_config(cfg)
+
+
+    for let ext of 'css pdf svg jpg png gif'.split(/\s+/) ::
+      cfg.addPassthroughCopy @ `root/**/*.${ext}`
+
+    return @{}
+      pathPrefix: '/'
+
+
+  async eleventy_devserver(cfg) ::
+    // https://www.11ty.dev/docs/watch-serve/
+    cfg.setWatchThrottleWaitTime(90)
+    cfg.setServerPassthroughCopyBehavior('passthrough')
+
+    // https://www.11ty.dev/docs/dev-server/
+    return cfg.setServerOptions @:
+      //port: 8080, strictPort: true
+      domDiff: false
+
+
+  async vite_config() ::
+    return @{}
+      appType: 'mpa'
+      mode: this.cli_opt.serve
+        ? 'development' : 'production'
+
+      publicDir: path_resolve('./public')
+      plugins: @[]
+        rpi_dgnotify()
+        rpi_jsy @:
+          defines: @{}
+
+      css: @{}
+        devSourcemap: true
+
+      resolve: @{}
+        alias: @{}
+          // use /root for in-tree glue code with Vite passthrough
+          '/root': path_resolve('./root/')
+          // use '@/' prefix for named locations in code subdirectory with Vite passthrough
+          '@': path_resolve('./code/')
+
+
+
+if import.meta.url == `file://${process.argv[1]}` ::
+  site_cfg.main()
+
