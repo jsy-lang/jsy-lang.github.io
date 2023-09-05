@@ -35,6 +35,9 @@ export const site_cfg = @{}
   async eleventy_config(cfg) ::
     eleventy_jsy(cfg)
 
+    for let ext of 'css pdf svg jpg png gif'.split(/\s+/) ::
+      cfg.addPassthroughCopy @ `root/**/*.${ext}`
+
     for let [name, fn] of Object.entries @ this.filter_fns ::
       cfg.addFilter @ name, fn
 
@@ -48,9 +51,6 @@ export const site_cfg = @{}
     cfg.addPlugin @ epi_vite, @{}
       viteOptions: await this.vite_config(cfg)
 
-
-    for let ext of 'css pdf svg jpg png gif'.split(/\s+/) ::
-      cfg.addPassthroughCopy @ `root/**/*.${ext}`
 
     return @{}
       pathPrefix: '/'

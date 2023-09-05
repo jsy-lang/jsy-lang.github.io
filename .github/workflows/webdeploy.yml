@@ -1,0 +1,56 @@
+name: CI web deploy
+on:
+  push:
+    branches: [ "master" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Only one concurrent deployment
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build using JSY, 11ty, and Vite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use NodeJS ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+          cache: 'npm'
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v3
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Upload artifact
+        # see https://github.com/actions/upload-pages-artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    permissions:
+      pages: write
+      id-token: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        # see https://github.com/actions/deploy-pages
+        uses: actions/deploy-pages@v2

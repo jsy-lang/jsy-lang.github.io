@@ -1,0 +1,61 @@
+---
+layout: jsy_md.liquid
+title: Play
+---
+<style>
+div.toolbar {
+  display: flex;
+  background: rgba(0,0,0,0.5);
+  padding: 4px;
+  margin-bottom: 1em;
+  justify-content: right;
+}
+div.toolbar>* {
+}
+output {
+  display: block;
+  border: 1px solid black;
+  padding: 1em;
+}
+</style>
+
+<h1>JSY Playground</h1>
+
+<jsy-func-editor id=jsy_editor dual func=async args='el_playground'>
+let el = el_playground.querySelector @
+  '#playground .target'
+
+el.textContent = 'Ready'
+el.addEventListener @ 'click', evt => ::
+  let ts = new Date().toLocaleTimeString()
+  evt.target.textContent = `Clicked ${ts}`
+  console.log @ "clicked!", evt
+
+el.style.backgroundColor = `rgb(
+  ${256*Math.random()},
+  ${256*Math.random()},
+  ${256*Math.random()})`
+</jsy-func-editor>
+<div class=toolbar>
+  <button default onclick='jsy_editor.dyn_fn(reset_playground())'>Run Code</button>
+</div>
+
+
+<template id=tmpl_playground>
+  <output id=playground>
+    <button class=target>Target button</button>
+  </output>
+</template>
+
+<output id=playground></output>
+
+<script async>
+  window.reset_playground = () => {
+    let el = window.tmpl_playground
+      .content.cloneNode(true)
+      .firstElementChild
+    window.playground.replaceWith(el)
+    return el
+  }
+  Promise.resolve().then(window.reset_playground)
+</script>

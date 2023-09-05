@@ -1,5 +1,5 @@
 ---
-site_icon: '/jsy_favicon.png'
+site_icon:
 head_cdn:
   styles: []
   js: []
@@ -24,22 +24,16 @@ tail_local:
 <head>
 <meta charset='utf-8' />
 <meta name=viewport content='width=device-width, initial-scale=1'>
-<!-- FROM raw_page.liquid -->
 
 {% if title %}
-{% if site_title %}
-<title>{{title}} - {{site_title}}</title>
-{% else %}
-<title>{{title}}</title>
+{% if site.title %}<title>{{title}} - {{site.title}}</title>
+{% else %}<title>{{title}}</title>
 {% endif %}
-{% else %}
-<title>{{site_title}}</title>
-{% endif %}
+{% else %}{% if site.title %}<title>{{site.title}}</title>
+{% else %}{% endif %}{% endif %}
 
-{% if site_icon %}
-  <link rel=icon href='{{site_icon}}' />
-{% else %}
-  <link rel=icon href='data:image/png;base64,' />
+{% if site.icon %} <link rel=icon href='{{site.icon}}' />
+{% else %} <link rel=icon href='data:image/png;base64,' />
 {% endif %}
 
 {% for each in head_cdn.styles %}<link rel=stylesheet type=text/css href='{{each.href}}' crossorigin=anonymous integrity='{{each.integrity}}' />{% endfor %}
@@ -65,4 +59,5 @@ tail_local:
 {% for each in tail_cdn.esm %}<script type=module src='{{each.src}}' {{each.opt}} crossorigin=anonymous integrity='{{each.integrity}}'></script>{% endfor %}
 {% for each in tail_site.esm %}<script type=module src='{{each.src}}' {{each.opt}}></script>{% endfor %}
 {% for each in tail_local.esm %}<script type=module src='{{each.src | vite_url}}' {{each.opt}}></script>{% endfor %}
-
+</body>
+</html>

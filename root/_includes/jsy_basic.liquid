@@ -1,0 +1,27 @@
+---
+layout: raw_page.liquid
+head_cdn:
+  styles:
+  - href: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'
+    integrity: 'sha256-fx038NkLY4U1TCrBDiu5FWPEa9eiZu01EiLryshJbCo='
+  - href: 'https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.css'
+    integrity: 'sha256-h/qtq9bUnXbOOwP4EcbLtYM9Mk3iQQcHZAZ+Jz5y0WQ='
+  js:
+  - src: "https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.js"
+    integrity: "sha256-S5mU/F9EHUxP/yPe4lNcCQEL+TsdkMLHKwQww9PxAI4="
+  - src: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js'
+    integrity: 'sha256-qlPVgvl+tZTCpcxYJFdHB/m6mDe84wRr+l81VoYPTgQ='
+
+head_site:
+  js:
+  - src: 'https://cdn.jsdelivr.net/npm/prism-jsy/iife/prism-jsy-syntax.js'
+  esm:
+  - src: 'https://cdn.jsdelivr.net/npm/lite-code-editor@0.1.3/esm/jsy-func-editor.min.js'
+
+head_local:
+  styles:
+  - href: '/s/jsy.css'
+---
+
+<!-- FROM jsy_basic.liquid -->
+{{ content }}
