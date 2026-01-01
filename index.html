@@ -24,7 +24,6 @@
     .doc_about>.container.content { max-width: 46em }
   </style>
 
-  <script defer src='https://cdn.jsdelivr.net/npm/jsy-transpile/umd/index.js'></script>
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/lib/codemirror.min.js'></script>
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/mode/javascript/javascript.js'></script>
   <script defer crossorigin src='https://cdn.jsdelivr.net/npm/codemirror@5.40.0/addon/runmode/runmode.js'></script>
@@ -165,22 +164,9 @@ class ExampleApi extends SomeBaseClass ::
       <br />
 
       <p>
-        JSY has over <a target='_blank' href='./unittest.html'>5,000 JSY unit tests</a>
-        and <a title='Build Status' target='_blank' href='https://travis-ci.org/jsy-lang/jsy-transpile'>continuous testing <img alt='Build Status' src='https://travis-ci.org/jsy-lang/jsy-transpile.svg?branch=master' border='0' /></a>
+        JSY has over <a target='_blank' href='./unittest.html'>6,000 JSY unit tests</a>
+        <!--and <a title='Build Status' target='_blank' href='https://travis-ci.org/jsy-lang/jsy-transpile'>continuous testing <img alt='Build Status' src='https://travis-ci.org/jsy-lang/jsy-transpile.svg?branch=master' border='0' /></a>-->
         to insure consistency and stability.
-
-        There are plugins for <a target='_blank' href='https://github.com/jsy-lang/rollup-plugin-jsy-lite#readme'>Rollup</a>,
-        <a target='_blank' href='https://github.com/jsy-lang/parcel-plugin-jsy#readme'>Parcel 1.x</a>,
-        <a target='_blank' href='https://github.com/jsy-lang/parcel-transform-jsy#readme'>Parcel 2.x</a>,
-        as well as <a target='_blank' href='https://github.com/jsy-lang/babel-plugin-jsy-lite#readme'>Babel 6 & 7</a>,
-        and <a target='_blank' href='https://github.com/jsy-lang/jsy-lang-docs#ecosystem'>more</a>.
-      </p>
-
-      <p>
-        Try JSY out on <a target='_blank' href='https://babeljs.io/en/repl'>Babel's REPL</a>
-        or in a <a target='_blank' href='https://codesandbox.io/'>CodeSandbox</a>
-        — just add the <a target='_blank' href='https://www.npmjs.com/package/babel-plugin-jsy-lite'><samp>babel-plugin-jsy-lite</samp></a>
-        to the configured Babel plugin list.
       </p>
     </div>
   </section>
@@ -218,7 +204,10 @@ class ExampleApi extends SomeBaseClass ::
     </div>
   </section>
 
-  <script>
+  <script type=module>
+    import {jsy_transpile} from 'https://cdn.jsdelivr.net/npm/@jsy-lang/jsy@0.10.9/esm/index.js'
+    window.jsy_transpile = jsy_transpile
+
     function get_jsy_src() {
       const hash = window.location.hash.slice(1)
       return ! hash ? default_jsy_src :
