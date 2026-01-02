@@ -346,6 +346,14 @@ class ExampleApi extends SomeBaseClass ::
     function prettierOptions(prettier) {
       changeHighlightOption({prettier: Object.assign({}, prettier)})
     }
+
+    Object.assign(window, {
+      resetEditor,
+      changeEditorOption,
+      changeHighlightOption,
+      prettierOptions,
+    })
+
     console.log(`To Change Prettier Options:
 
   prettierOptions({insertPragma: true}
